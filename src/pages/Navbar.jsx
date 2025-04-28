@@ -48,7 +48,7 @@ const Navbar = () => {
   const fetchUnreadNotifications = async () => {
     try {
       const response = await fetch(
-        "https://api-uat.healthwealthsafe.link/api/newGetUnreadNotification?userId=n6rjG7qNbFr&notificationGroupType=staff&pageSize=10&pageNumber=1"
+        "https://api-uat.healthwealthsafe.link/api/getNotificationCounts"
       );
       const data = await response.json();
       setUnreadNotifications(data.count || 0); // Assuming 'count' gives the number of unread notifications
