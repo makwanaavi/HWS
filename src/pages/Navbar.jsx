@@ -17,7 +17,9 @@ const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [onlineCalls, setOnlineCalls] = useState({ incoming: 0, outgoing: 0 });
   const [voiceMailsCount, setVoiceMailsCount] = useState(0);
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
 
+  // Fetch data for available workers and voicemails
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -41,6 +43,19 @@ const Navbar = () => {
 
     fetchData();
   }, []);
+
+  // Function to fetch unread notifications
+  const fetchUnreadNotifications = async () => {
+    try {
+      const response = await fetch(
+        "https://api-uat.healthwealthsafe.link/api/getNotificationCounts"
+      );
+      const data = await response.json();
+      setUnreadNotifications(data.count || 0); // Assuming 'count' gives the number of unread notifications
+    } catch (error) {
+      console.error("Error fetching unread notifications:", error);
+    }
+  };
 
   return (
     <nav className="flex flex-col md:flex-row items-center justify-between bg-white shadow px-4 py-3 md:px-6 md:py-4 w-full">
@@ -109,7 +124,15 @@ const Navbar = () => {
           <PhoneOutgoing className="h-6 w-6 cursor-pointer" />
           <PhoneIncoming className="h-6 w-6 cursor-pointer" />
           <UserPlus className="h-6 w-6 cursor-pointer" />
-          <Bell className="h-6 w-6 cursor-pointer" />
+          <Bell
+            className="h-6 w-6 cursor-pointer"
+            onClick={fetchUnreadNotifications}
+          />
+          {unreadNotifications > 0 && (
+            <span className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full px-2">
+              {unreadNotifications}
+            </span>
+          )}
         </div>
 
         {/* User Profile */}
