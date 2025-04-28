@@ -1,0 +1,36 @@
+@import "tailwindcss";
+
+.tabs-container {
+    width: 100%;
+  }
+  
+  .tabs-list {
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 1rem;
+  }
+  
+  .tabs-trigger {
+    padding: 8px 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .tabs-trigger:hover {
+    background-color: #f0f0f0;
+  }
+  
+  .tabs-trigger.bg-blue-600 {
+    background-color: #1d4ed8;
+    color: white;
+  }
+  
+  .tabs-content {
+    padding: 16px;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+  }
+  
