@@ -24,8 +24,10 @@ const Navbar = () => {
     const fetchData = async () => {
       try {
         const [callsResponse, voiceMailsResponse] = await Promise.all([
-          fetch("https://api-uat.healthwealthsafe.link/api/getAvailableWorkersCount"),
-          fetch("https://api-uat.healthwealthsafe.link/api/getVoiceMailsCount")
+          fetch(
+            "https://api-uat.healthwealthsafe.link/api/getAvailableWorkersCount"
+          ),
+          fetch("https://api-uat.healthwealthsafe.link/api/getVoiceMailsCount"),
         ]);
 
         const callsData = await callsResponse.json();
@@ -101,7 +103,9 @@ const Navbar = () => {
 
           <div className="flex flex-col items-center">
             <span>VOICE MAILS</span>
-            <div className="text-xl text-yellow-500 font-bold mt-1">{voiceMailsCount}</div>
+            <div className="text-xl text-yellow-500 font-bold mt-1">
+              {voiceMailsCount}
+            </div>
           </div>
 
           <div className="flex flex-col items-center">
@@ -141,17 +145,17 @@ const Navbar = () => {
             className="flex items-center space-x-3 bg-white px-4 py-2 rounded-full shadow-md cursor-pointer"
             onClick={() => setIsOpen(!isOpen)}
           >
-            <img
-              src="/user-avatar.png"
-              alt="User Avatar"
-              className="h-10 w-10 rounded-full bg-black"
-            />
+            <div className="w-12 h-12 rounded-full bg-black flex items-center justify-center text-white text-sm">
+              IMG
+            </div>
             <div className="text-sm text-gray-700">
               <div className="font-semibold">Hardik Bipinbhai Navigator</div>
               <div className="text-xs text-gray-400">(hrn)</div>
             </div>
             <svg
-              className={`w-4 h-4 text-gray-500 transition-transform ${isOpen ? "rotate-180" : ""}`}
+              className={`w-4 h-4 text-gray-500 transition-transform ${
+                isOpen ? "rotate-180" : ""
+              }`}
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"

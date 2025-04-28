@@ -1,15 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { FaSpinner } from "react-icons/fa";
-
-// MetricCard Component
 const MetricCard = ({ title, items, total, color, isLoading }) => {
+  
   const gradientMap = {
     "bg-amber-50": "from-amber-50 to-amber-100",
     "bg-indigo-100": "from-indigo-100 to-indigo-200",
     "bg-pink-100": "from-pink-100 to-pink-200",
     "bg-teal-100": "from-teal-100 to-teal-200",
   };
-
   return (
     <div
       className={`shadow-lg p-6 bg-gradient-to-br ${gradientMap[color] || "from-gray-50 to-gray-100"}
@@ -19,7 +17,6 @@ const MetricCard = ({ title, items, total, color, isLoading }) => {
         {title}
         {isLoading && <FaSpinner className=" text-gray-400" />}
       </h2>
-
       {items ? (
         <ul className="space-y-2">
           {items.map((item, index) => (
