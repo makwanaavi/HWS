@@ -36,7 +36,6 @@ export default function SignIn({ setIsLoggedIn }) {
           body: JSON.stringify({ username : "hrn", password : "March@2025"}),
         }
       );
-
       const data = await response.json();
 
       if (response.ok && data.status === "success") {
