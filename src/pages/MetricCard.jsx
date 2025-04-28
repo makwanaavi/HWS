@@ -12,15 +12,10 @@ const MetricCard = ({ title, items, total, color, isLoading }) => {
 
   return (
     <div
-      className={` shadow-lg p-6 bg-gradient-to-br ${
-        gradientMap[color] || "from-gray-50 to-gray-100"
-      } 
-      max-h-[300px] overflow-y-auto transition-all duration-300  hover:shadow-xl`}
+      className={`shadow-lg p-6 bg-gradient-to-br ${gradientMap[color] || "from-gray-50 to-gray-100"}
+      max-h-[300px] overflow-y-auto transition-all duration-300 hover:shadow-xl`}
     >
-      <h2
-        className="font-bold text-xl mb-4 text-gray-800 border-b border-gray-200/50 pb-2
-        flex items-center justify-between"
-      >
+      <h2 className="font-bold text-xl mb-4 text-gray-800 border-b border-gray-200/50 pb-2 flex items-center justify-between">
         {title}
         {isLoading && <FaSpinner className=" text-gray-400" />}
       </h2>
@@ -28,20 +23,14 @@ const MetricCard = ({ title, items, total, color, isLoading }) => {
       {items ? (
         <ul className="space-y-2">
           {items.map((item, index) => (
-            <li
-              key={index}
-              className="flex justify-between items-center p-2 
-                hover:bg-white/40 transition-colors"
-            >
+            <li key={index} className="flex justify-between items-center p-2 hover:bg-white/40 transition-colors">
               <span className="text-gray-700">{item.name}</span>
-              <span className="font-semibold bg-white/60 px-3 py-1 text-gray-800">
-                {item.value}
-              </span>
+              <span className="font-semibold bg-white/60 px-3 py-1 text-gray-800">{item.value}</span>
             </li>
           ))}
         </ul>
       ) : (
-        <div className="text-4xl font-bold text-gray-800 text-center mt-4 ]">
+        <div className="text-4xl font-bold text-gray-800 text-center mt-4">
           {total}
         </div>
       )}
@@ -50,9 +39,11 @@ const MetricCard = ({ title, items, total, color, isLoading }) => {
 };
 
 // Dashboard Component
-export default function Dashboard() {
+const Dashboard = () => {
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Fallback data if the API request fails
   const fallbackData = [
     {
       title: "Registration",
@@ -64,7 +55,7 @@ export default function Dashboard() {
         { name: "RPM and CCM", value: 0 },
         { name: "RPM and RTM", value: 0 },
         { name: "RTM and CCM", value: 0 },
-        { name: "RPM,CCM and RTM", value: 0 },
+        { name: "RPM, CCM and RTM", value: 0 },
       ],
     },
     {
@@ -130,10 +121,15 @@ export default function Dashboard() {
     },
   ];
 
+  // Fetch data on mount
   useEffect(() => {
-    fetch(
-      "https://api-uat.healthwealthsafe.link/api/getActionsByType?actionType"
-    )
+    fetch("https://api-uat.healthwealthsafe.link/api/getActionsByType?actionType", {
+      method: "GET",
+      headers: {
+        "Authorization":
+          "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Im42cmpHN3FOYkZyIiwiZW1haWwiOiJyYWplc2hAd295Y2UuaW8iLCJwaG9uZSI6IjkxNDAxNTAxNDQ4OCIsInVzZXJuYW1lIjoiaHJuIiwidHlwZSI6Im5hdmlnYXRvcl91c2VyIiwibmFtZSI6IiBIYXJkaWsgQmlwaW5iaGFpIE5hdmlnYXRvciIsInRpbWV6b25lIjoiQXNpYS9DYWxjdXR0YSIsInN1YlR5cGUiOiJuYXZpZ2F0b3JfdXNlciIsInR3aWxpb1dvcmtlck5hbWUiOiJocm4iLCJzcGFjZV9pZCI6MSwiaXAiOiI6OmZmZmY6NTIuMjA0LjEyMC4xNjciLCJpYXQiOjE3NDU0MTUxNTMsImV4cCI6MTkwMzA5NTE1M30.eX3ugoAgaeSurLd8GZcdLfjhbS-5tFxCOMEs9GZckHU",
+      },
+    })
       .then((res) => res.json())
       .then((apiData) => {
         if (!Array.isArray(apiData)) {
@@ -142,6 +138,7 @@ export default function Dashboard() {
           return;
         }
 
+        // Process the data from API and group it
         const grouped = apiData.reduce((acc, curr) => {
           const { actionName, actionType, actionCount } = curr;
 
@@ -175,6 +172,7 @@ export default function Dashboard() {
         setIsLoading(false);
       });
   }, []);
+
   return (
     <div className="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {data.map((section, index) => (
@@ -190,4 +188,6 @@ export default function Dashboard() {
       ))}
     </div>
   );
-}
+};
+
+export default Dashboard;
