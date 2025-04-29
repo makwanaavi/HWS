@@ -1,32 +1,40 @@
 import React, { useEffect, useState } from "react";
 import { FaSpinner } from "react-icons/fa";
+
+// Simple Card component to show each box
 const MetricCard = ({ title, items, total, color, isLoading }) => {
-  
-  const gradientMap = {
+  // Background color settings
+  const backgroundColors = {
     "bg-amber-50": "from-amber-50 to-amber-100",
     "bg-indigo-100": "from-indigo-100 to-indigo-200",
     "bg-pink-100": "from-pink-100 to-pink-200",
     "bg-teal-100": "from-teal-100 to-teal-200",
   };
+
   return (
     <div
-      className={`shadow-lg p-6 bg-gradient-to-br ${gradientMap[color] || "from-gray-50 to-gray-100"}
+      className={`shadow-lg p-6 bg-gradient-to-br ${backgroundColors[color] || "from-gray-50 to-gray-100"} 
       max-h-[300px] overflow-y-auto transition-all duration-300 hover:shadow-xl`}
     >
+      {/* Title */}
       <h2 className="font-bold text-xl mb-4 text-gray-800 border-b border-gray-200/50 pb-2 flex items-center justify-between">
         {title}
-        {isLoading && <FaSpinner className=" text-gray-400" />}
+        {/* Loading spinner */}
+        {isLoading && <FaSpinner className="text-gray-400 animate-spin" />}
       </h2>
+
+      {/* List of items */}
       {items ? (
         <ul className="space-y-2">
           {items.map((item, index) => (
-            <li key={index} className="flex justify-between items-center p-2 hover:bg-white/40 transition-colors">
+            <li key={index} className="flex justify-between items-center p-2 hover:bg-white/40 transition">
               <span className="text-gray-700">{item.name}</span>
               <span className="font-semibold bg-white/60 px-3 py-1 text-gray-800">{item.value}</span>
             </li>
           ))}
         </ul>
       ) : (
+        // If no items, show total number
         <div className="text-4xl font-bold text-gray-800 text-center mt-4">
           {total}
         </div>
@@ -35,12 +43,12 @@ const MetricCard = ({ title, items, total, color, isLoading }) => {
   );
 };
 
-// Dashboard Component
+// Main Dashboard Component
 const Dashboard = () => {
-  const [data, setData] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [data, setData] = useState([]); // To store cards data
+  const [isLoading, setIsLoading] = useState(true); // To show loading spinner
 
-  // Fallback data if the API request fails
+  // If API fails, use this default data
   const fallbackData = [
     {
       title: "Registration",
@@ -118,7 +126,7 @@ const Dashboard = () => {
     },
   ];
 
-  // Fetch data on mount
+  // Fetch data when page loads
   useEffect(() => {
     fetch("https://api-uat.healthwealthsafe.link/api/getActionsByType?actionType", {
       method: "GET",
@@ -129,42 +137,44 @@ const Dashboard = () => {
     })
       .then((res) => res.json())
       .then((apiData) => {
+        // If API does not give list, use fallback data
         if (!Array.isArray(apiData)) {
           setData(fallbackData);
           setIsLoading(false);
           return;
         }
 
-        // Process the data from API and group it
-        const grouped = apiData.reduce((acc, curr) => {
-          const { actionName, actionType, actionCount } = curr;
+        // Group API data nicely
+        const groupedData = apiData.reduce((groups, item) => {
+          const { actionName, actionType, actionCount } = item;
 
-          const found = acc.find((item) => item.title === actionName);
-          if (found && found.items) {
-            found.items.push({ name: actionType, value: actionCount });
+          const existing = groups.find((g) => g.title === actionName);
+
+          if (existing && existing.items) {
+            existing.items.push({ name: actionType, value: actionCount });
           } else {
             if (actionType) {
-              acc.push({
+              groups.push({
                 title: actionName,
                 color: "bg-indigo-100",
                 items: [{ name: actionType, value: actionCount }],
               });
             } else {
-              acc.push({
+              groups.push({
                 title: actionName,
                 color: "bg-indigo-100",
                 total: actionCount,
               });
             }
           }
-          return acc;
+          return groups;
         }, []);
 
-        setData(grouped);
+        setData(groupedData);
         setIsLoading(false);
       })
-      .catch((err) => {
-        console.error("Failed to fetch data from API, using fallback:", err);
+      .catch((error) => {
+        console.error("API error, showing fallback data:", error);
         setData(fallbackData);
         setIsLoading(false);
       });
