@@ -41,8 +41,28 @@ export default function SignIn({ setIsLoggedIn }) {
       if (response.ok && data.status === "success") {
         const { token, ...userInfo } = data.data;
 
-        localStorage.setItem("authToken", token);
-        localStorage.setItem("userInfo", JSON.stringify(userInfo));
+        // localStorage.setItem("authToken", token);
+        // localStorage.setItem("userInfo", JSON.stringify(userInfo));
+
+        // localStorage.setItem("isLoggedIn", true);
+        // localStorage.setItem("userRole", userInfo.role || "user");
+        // localStorage.setItem("userName", userInfo.name || "User");
+        // localStorage.setItem("userId", userInfo.id || "0");
+        // localStorage.setItem("userEmail", userInfo.email || "User Email");
+
+        // localStorage.setItem("userPhone", userInfo.phone || "User Phone");
+
+        // localStorage.setItem("userOrganization", userInfo.organization || "User Organization");
+        // localStorage.setItem("userOrganizationId", userInfo.organizationId || "0");
+        // localStorage.setItem("userOrganizationName", userInfo.organizationName || "User Organization Name");  
+
+        // clearTimeout(localStorage.getItem("isLoggedInTimeout"));
+        // const timeout = setTimeout(() => {
+        //   localStorage.removeItem("isLoggedIn");
+        //   localStorage.removeItem("authToken");
+        //   localStorage.removeItem("userInfo");
+        // }, 3600000); 
+
 
         if (setIsLoggedIn) setIsLoggedIn(true);
         navigate("/dashboard");
@@ -188,3 +208,5 @@ export default function SignIn({ setIsLoggedIn }) {
     </div>
   );
 }
+
+

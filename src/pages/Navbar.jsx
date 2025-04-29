@@ -17,37 +17,34 @@ const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [onlineCalls, setOnlineCalls] = useState({ incoming: 0, outgoing: 0 });
   const [voiceMailsCount, setVoiceMailsCount] = useState(0);
-  const [unreadNotifications, setUnreadNotifications] = useState(0);
+  const [unreadNotifications, setUnreadNotifications] = useState(true);
 
-  const AUTH_TOKEN =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Im42cmpHN3FOYkZyIiwiZW1haWwiOiJyYWplc2hAd295Y2UuaW8iLCJwaG9uZSI6IjkxNDAxNTAxNDQ4OCIsInVzZXJuYW1lIjoiaHJuIiwidHlwZSI6Im5hdmlnYXRvcl91c2VyIiwibmFtZSI6IiBIYXJkaWsgQmlwaW5iaGFpIE5hdmlnYXRvciIsInRpbWV6b25lIjoiQXNpYS9DYWxjdXR0YSIsInN1YlR5cGUiOiJuYXZpZ2F0b3JfdXNlciIsInR3aWxpb1dvcmtlck5hbWUiOiJocm4iLCJzcGFjZV9pZCI6MSwiaXAiOiI6OmZmZmY6NTIuMjA0LjEyMC4xNjciLCJpYXQiOjE3NDU4NTA2ODAsImV4cCI6MTkwMzUzMDY4MH0.e1SW5zvERiSOeMejpsvV3w5b0_No_Go0-";
+  // const AUTH_TOKEN =
+  //   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Im42cmpHN3FOYkZyIiwiZW1haWwiOiJyYWplc2hAd295Y2UuaW8iLCJwaG9uZSI6IjkxNDAxNTAxNDQ4OCIsInVzZXJuYW1lIjoiaHJuIiwidHlwZSI6Im5hdmlnYXRvcl91c2VyIiwibmFtZSI6IiBIYXJkaWsgQmlwaW5iaGFpIE5hdmlnYXRvciIsInRpbWV6b25lIjoiQXNpYS9DYWxjdXR0YSIsInN1YlR5cGUiOiJuYXZpZ2F0b3JfdXNlciIsInR3aWxpb1dvcmtlck5hbWUiOiJocm4iLCJzcGFjZV9pZCI6MSwiaXAiOiI6OmZmZmY6NTIuMjA0LjEyMC4xNjciLCJpYXQiOjE3NDU4NTA2ODAsImV4cCI6MTkwMzUzMDY4MH0.e1SW5zvERiSOeMejpsvV3w5b0_No_Go0-";
 
-  useEffect(() => {
+  useEffect( () => {
     const fetchData = async () => {
       try {
-        const [callsResponse, voiceMailsResponse] = await Promise.all([
-          fetch(
-            "https://api-uat.healthwealthsafe.link/api/getAvailableWorkersCount"
-          ),
-          fetch(
-            "https://api-uat.healthwealthsafe.link/api/getVoiceMailsCount"
-          ),
-        ]);
-
-        const callsData = await callsResponse.json();
-        const voiceMailsData = await voiceMailsResponse.json();
-
-        setOnlineCalls({
-          incoming: callsData.incoming || 0,
-          outgoing: callsData.outgoing || 0,
+        const callsResponse = await fetch('https://api-uat.healthwealthsafe.link/api/getAvailableWorkersCount', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Im42cmpHN3FOYkZyIiwiZW1haWwiOiJyYWplc2hAd295Y2UuaW8iLCJwaG9uZSI6IjkxNDAxNTAxNDQ4OCIsInVzZXJuYW1lIjoiaHJuIiwidHlwZSI6Im5hdmlnYXRvcl91c2VyIiwibmFtZSI6IiBIYXJkaWsgQmlwaW5iaGFpIE5hdmlnYXRvciIsInRpbWV6b25lIjoiQW1lcmljYS9OZXdfWW9yayIsInN1YlR5cGUiOiJuYXZpZ2F0b3JfdXNlciIsInR3aWxpb1dvcmtlck5hbWUiOiJocm4iLCJzcGFjZV9pZCI6MSwiaXAiOiI6OmZmZmY6NTIuMjA0LjEyMC4xNjciLCJpYXQiOjE3NDU4MzkyODUsImV4cCI6MTkwMzUxOTI4NX0.AquVL1GuKT190DvW-uRyFf2ag2b4D3ZzU3kTL50h2Yw'
+          },
         });
-        setVoiceMailsCount(voiceMailsData.count || 0);
+    
+        if (!callsResponse.ok) {
+           new Error(`HTTP error! status: ${callsResponse.status}`);
+        }
+    
+        const data = await callsResponse.json();
+        console.log('API response:', data);
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error('Error fetching data:', error);
       }
     };
-
     fetchData();
+
   }, []);
 
   const fetchUnreadNotifications = async () => {
@@ -58,7 +55,7 @@ const Navbar = () => {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${AUTH_TOKEN}`,
+            Authorization: `Bearer eyJzdGF0dXMiOiJmYWlsIiwibWVzc2FnZSI6IkFjY2VzcyBkZW5pZWQifQ==`,
           },
         }
       );
@@ -165,6 +162,8 @@ const Navbar = () => {
       </div>
     </nav>
   );
-};
+}
 
 export default Navbar;
+
+

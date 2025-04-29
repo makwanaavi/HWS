@@ -8,6 +8,8 @@ import {
   } from "lucide-react";
   
   const UserProfileCard = () => {
+  // if (loading) return <div>Loading...</div>;
+
     return (
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between bg-white p-4 rounded-md shadow-sm border border-gray-200 gap-4">
         {/* Profile Section */}

@@ -1,158 +1,131 @@
 import React, { useEffect, useState } from "react";
+import { FaSpinner } from "react-icons/fa";
+import axios from "axios";
 
-const EligibilityDashboard = () => {
-  const [dashboardCounts, setDashboardCounts] = useState({
-    populationDashboard: 0,
-    escalationDashboard: 0,
-    needAttentionDashboard: 0,
-    engagementDashboard: 0,
-  });
-
-  useEffect(() => {
-    fetch("https://api-uat.healthwealthsafe.link/api/getDashboardCounts")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.status === "success" && data.data) {
-          setDashboardCounts({
-            populationDashboard: data.data.populationDashboard || 0,
-            escalationDashboard: data.data.escalationDashboard || 0,
-            needAttentionDashboard: data.data.needAttentionDashboard || 0,
-            engagementDashboard: data.data.engagementDashboard || 0,
-          });
-        }
-      })
-      .catch((err) => {
-        console.error("Dashboard data fetch failed:", err);
-      });
-  }, []);
+const MetricCard = ({ title, items, total, color, isLoading }) => {
+  const backgroundColors = {
+    "bg-amber-50": "from-amber-50 to-amber-100",
+    "bg-indigo-100": "from-indigo-100 to-indigo-200",
+    "bg-pink-100": "from-pink-100 to-pink-200",
+    "bg-teal-100": "from-teal-100 to-teal-200",
+  };
 
   return (
-    <div className="flex flex-col lg:flex-row gap-4">
-      {/* Main Content */}
-      <div className="w-full lg:w-3/4 bg-white rounded-xl shadow-sm p-4">
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex-1">
-              <label className="block text-sm font-medium mb-1">
-                Care Manager
-              </label>
-              <select className="w-full p-2 border rounded-lg text-sm">
-                <option>Hardik Bipinbhai Navigator</option>
-              </select>
-            </div>
-            <div className="flex-1">
-              <label className="block text-sm font-medium mb-1">Clinic</label>
-              <select className="w-full p-2 border rounded-lg text-sm">
-                <option>All Clinic</option>
-              </select>
-            </div>
-          </div>
+    <div
+      className={`shadow-lg p-6 bg-gradient-to-br ${backgroundColors[color] || "from-gray-50 to-gray-100"} 
+      max-h-[300px] overflow-y-auto transition-all duration-300 hover:shadow-xl`}
+    >
+      <h2 className="font-bold text-xl mb-4 text-gray-800 border-b border-gray-200/50 pb-2 flex items-center justify-between">
+        {title}
+        {isLoading && <FaSpinner className="text-gray-400 animate-spin" />}
+      </h2>
 
-          <div className="overflow-x-auto">
-            <div className="flex gap-6 text-sm font-semibold border-b min-w-max">
-              {[
-                "Eligibility",
-                "Population",
-                "RPM",
-                "CCM",
-                "RTM",
-                "Engagement",
-                "Others",
-              ].map((tab) => (
-                <button
-                  key={tab}
-                  className={`pb-2 px-1 border-b-2 ${
-                    tab === "Eligibility"
-                      ? "border-blue-500 text-blue-600"
-                      : "border-transparent text-gray-500"
-                  }`}
-                >
-                  {tab}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {[
-              "Complete Information",
-              "Pending Review - Commercial",
-              "Pending Review - Medicare",
-              "Pending Review - Medicaid",
-              "Pending Review - Other",
-              "Reviewed",
-              "Total Eligible",
-            ].map((item) => (
-              <div
-                key={item}
-                className="bg-purple-50 p-4 rounded-lg shadow-sm text-center"
-              >
-                <p className="text-blue-500 text-xs mb-2">{item}</p>
-                <p className="text-xl font-bold">0</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Sidebar Stats */}
-      <div className="w-full lg:w-1/4 flex flex-col gap-4">
-        {[
-          {
-            label: "Population",
-            value: dashboardCounts.populationDashboard,
-            color: "text-blue-500",
-          },
-          {
-            label: "Escalation",
-            value: dashboardCounts.escalationDashboard,
-            color: "text-red-500",
-          },
-          {
-            label: "Needs Attention",
-            value: dashboardCounts.needAttentionDashboard,
-            color: "text-yellow-500",
-          },
-          {
-            label: "Patient Engagement",
-            value: dashboardCounts.engagementDashboard,
-            color: "text-green-500",
-          },
-        ].map(({ label, value, color, imgSrc }) => (
-          <div
-            key={label}
-            className="bg-white rounded-lg shadow-sm p-4 text-center"
-          >
-            <p className="text-gray-700 text-sm font-semibold">{label}</p>
-            <p className={`text-2xl font-bold ${color}`}>{value}</p>
-          </div>
-        ))}
-
-        {/* Search */}
-        <div className="bg-white rounded-lg shadow-sm p-4">
-          <p className="text-sm font-semibold mb-2">Global Search</p>
-          <input
-            type="text"
-            placeholder="Search By Name"
-            className="w-full p-2 border rounded-lg mb-2 text-sm"
-          />
-          <div className="flex flex-wrap gap-2">
-            {[
-              "04-01-2025 (rtm-billing)",
-              "display configuration (device-utilization)",
-            ].map((tag) => (
-              <span
-                key={tag}
-                className="text-xs bg-gray-200 rounded-full px-2 py-1"
-              >
-                {tag}
+      {items ? (
+        <ul className="space-y-2">
+          {items.map((item, index) => (
+            <li
+              key={index}
+              className="flex justify-between items-center p-2 hover:bg-white/40 transition"
+            >
+              <span className="text-gray-700">{item.name}</span>
+              <span className="font-semibold bg-white/60 px-3 py-1 text-gray-800">
+                {item.value}
               </span>
-            ))}
-          </div>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <div className="text-4xl font-bold text-gray-800 text-center mt-4">
+          {total}
         </div>
-      </div>
+      )}
     </div>
   );
 };
 
-export default EligibilityDashboard;
+const Dashboard = () => {
+  const [data, setData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        const response = await axios.get("https://api.example.com/dashboard-data", {
+          headers: {
+            Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Im42cmpHN3FOYkZyIiwiZW1haWwiOiJyYWplc2hAd295Y2UuaW8iLCJwaG9uZSI6IjkxNDAxNTAxNDQ4OCIsInVzZXJuYW1lIjoiaHJuIiwidHlwZSI6Im5hdmlnYXRvcl91c2VyIiwibmFtZSI6IiBIYXJkaWsgQmlwaW5iaGFpIE5hdmlnYXRvciIsInRpbWV6b25lIjoiQXNpYS9DYWxjdXR0YSIsInN1YlR5cGUiOiJuYXZpZ2F0b3JfdXNlciIsInR3aWxpb1dvcmtlck5hbWUiOiJocm4iLCJzcGFjZV9pZCI6MSwiaXAiOiI6OmZmZmY6NTIuMjA0LjEyMC4xNjciLCJpYXQiOjE3NDU5MDg3MzAsImV4cCI6MTkwMzU4ODczMH0.EDuHsNG5J-Aru4P38u1b-cahqRcJkyxC_ebgTcC6MhY`,
+          },
+        });
+
+        setData(response.data);
+      } catch (error) {
+        console.error("API fetch failed, using fallback data", error);
+        setData(fallbackData);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const fallbackData = [
+    {
+      title: "Registration",
+      color: "bg-amber-50",
+      items: [
+        { name: "RPM", value: 0 },
+        { name: "CCM", value: 0 },
+        { name: "RTM", value: 0 },
+        { name: "RPM and CCM", value: 0 },
+        { name: "RPM and RTM", value: 0 },
+        { name: "RTM and CCM", value: 0 },
+        { name: "RPM, CCM and RTM", value: 0 },
+      ],
+    },
+    {
+      title: "Call Complete",
+      color: "bg-indigo-100",
+      items: [
+        { name: "RPM", value: 0 },
+        { name: "CCM", value: 0 },
+        { name: "RTM", value: 0 },
+      ],
+    },
+    {
+      title: "First Follow-up Complete",
+      color: "bg-pink-100",
+      items: [
+        { name: "RPM", value: 0 },
+        { name: "CCM", value: 0 },
+        { name: "RTM", value: 0 },
+      ],
+    },
+    {
+      title: "First Follow-up Incomplete",
+      color: "bg-teal-100",
+      items: [
+        { name: "RPM", value: 0 },
+        { name: "CCM", value: 0 },
+        { name: "RTM", value: 0 },
+      ],
+    },
+  ];
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4">
+      {data.map((card, idx) => (
+        <MetricCard
+          key={idx}
+          title={card.title}
+          color={card.color}
+          items={card.items}
+          total={card.total}
+          isLoading={isLoading}
+        />
+      ))}
+    </div>
+  );
+};
+
+export default Dashboard;

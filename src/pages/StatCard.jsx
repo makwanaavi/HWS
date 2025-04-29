@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios"; 
 
+// StatCard and MiniCard components as they are
 const StatCard = ({ title, value, color }) => (
   <div className="rounded-xl shadow-sm p-4 bg-white flex flex-col items-center">
     <h2 className="text-sm font-medium text-gray-600">{title}</h2>
@@ -15,116 +15,53 @@ const MiniCard = ({ title, value }) => (
   </div>
 );
 
-const LoadingSpinner = () => (
-  <div className="flex justify-center items-center h-screen">
-    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-  </div>
-);
-
 export default function Dashboard({ organizationId }) {
-  const [state, setState] = useState({
-    dashboardData: null,
-    additionalData: null,
-    loading: true,
-    error: null
-  });
-
-  const API_BASE_URL = "https://api-uat.healthwealthsafe.link/api";
-
-  const fetchDashboardData = async () => {
-    try {
-      setState(prev => ({ ...prev, loading: true, error: null }));
-
-      const headers = {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${yourAuthToken}`
-      };
-
-      const [dashboardResponse, additionalResponse] = await Promise.all([
-        axios.get(`${API_BASE_URL}/getPhysicianDashboardTablesCount`, {
-          params: { organizationId },
-          headers
-        }),
-        axios.get(`${API_BASE_URL}/getDashboardCounts`, {
-          params: { organizationId },
-          headers
-        })
-      ]);
-
-      setState({
-        dashboardData: dashboardResponse.data,
-        additionalData: additionalResponse.data,
-        loading: false,
-        error: null
-      });
-
-    } catch (error) {
-      setState(prev => ({
-        ...prev,
-        loading: false,
-        error: error.response?.data?.message || 'Failed to fetch dashboard data'
-      }));
-      console.error('API Error:', error);
-    }
-  };
+  const [dashboardData, setDashboardData] = useState(null);
+  const [additionalData, setAdditionalData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (organizationId) {
-      fetchDashboardData();
-    }
+    const fetchData = async () => {
+      try {
+        // Fetching data from both APIs concurrently
+        const [dashboardResponse, additionalResponse] = await Promise.all([
+          fetch(
+            `https://api-uat.healthwealthsafe.link/api/getPhysicianDashboardTablesCount?organizationId=${organizationId}`
+          ),
+          fetch(
+            `https://api-uat.healthwealthsafe.link/api/getDashboardCounts?organizationId=${organizationId}`
+          ),
+        ]);
+
+        const dashboardData = await dashboardResponse.json();
+        const additionalData = await additionalResponse.json();
+
+        setDashboardData(dashboardData); // Data from first API
+        setAdditionalData(additionalData); // Data from second API
+        setLoading(false);
+      } catch (error) {
+        setError(error);
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, [organizationId]);
 
-  const handleRetry = () => {
-    fetchDashboardData();
-  };
-
-  if (state.loading) return <LoadingSpinner />;
-
-  if (state.error) {
-    return (
-      <div className="text-center p-4">
-        <div className="text-red-500 mb-4">Error: {state.error}</div>
-        <button 
-          onClick={handleRetry}
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-        >
-          Retry
-        </button>
-      </div>
-    );
-  }
-
-  const { dashboardData, additionalData } = state;
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error.message}</div>;
 
   return (
     <div className="space-y-6">
-      {/* First Stats Row */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <StatCard 
-          title="Population" 
-          value={dashboardData?.totalPopulation || "0"} 
-          color="text-blue-500" 
-        />
-        <StatCard 
-          title="Escalation" 
-          value={dashboardData?.escalationsTotal || "0"} 
-          color="text-red-500" 
-        />
-        <StatCard 
-          title="Needs Attention" 
-          value={dashboardData?.needsAttention || "0"} 
-          color="text-yellow-500" 
-        />
-        <StatCard 
-          title="Patient Engagement" 
-          value={dashboardData?.patientEngagement || "0"} 
-          color="text-green-500" 
-        />
+        <StatCard title="Population" value={dashboardData?.totalPopulation || "0"} color="text-blue-500" />
+        <StatCard title="Escalation" value={dashboardData?.escalationsTotal || "0"} color="text-red-500" />
+        <StatCard title="Needs Attention" value={dashboardData?.needsAttention || "0"} color="text-yellow-500" />
+        <StatCard title="Patient Engagement" value={dashboardData?.patientEngagement || "0"} color="text-green-500" />
       </div>
 
-      {/* Main Dashboard Content */}
       <div className="rounded-xl shadow-sm p-4 bg-white">
-        {/* Filters */}
         <div className="flex flex-wrap gap-4 mb-4">
           <select className="p-2 border rounded-lg text-sm w-full sm:w-auto">
             <option>All Care Manager</option>
@@ -134,38 +71,72 @@ export default function Dashboard({ organizationId }) {
           </select>
         </div>
 
-        {/* Tabs */}
         <div className="border-b border-gray-200 mb-4">
-          <button className="px-4 py-2 text-sm font-medium text-blue-600 border-b-2 border-blue-600">
+          <button className="px-4 py-2 text-sm font-medium text-blue-600 border-b-2 border-blue-600 cursor-pointer">
             Activity
           </button>
-          <button className="px-4 py-2 text-sm font-medium text-gray-500 ml-2 hover:text-blue-600">
+          <button className="px-4 py-2 text-sm font-medium text-gray-500 ml-2 cursor-pointer hover:text-blue-600">
             Health & Engagement
           </button>
         </div>
 
-        {/* Statistics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {/* Patient Statistics */}
           <div className="bg-blue-50 rounded-xl p-4">
             <h3 className="text-blue-700 font-semibold mb-3">Patient Statistics</h3>
             <div className="grid grid-cols-1 gap-3">
-              <MiniCard 
-                title="Total Population" 
-                value={dashboardData?.totalPopulation || "0"} 
-              />
-              <MiniCard 
-                title="Active Population" 
-                value={dashboardData?.activePopulation || "0"} 
-              />
-              <MiniCard 
-                title="Archived Population" 
-                value={dashboardData?.archivedPopulation || "0"} 
-              />
+              <MiniCard title="Total Population" value={dashboardData?.totalPopulation || "0"} />
+              <MiniCard title="Active Population" value={dashboardData?.activePopulation || "0"} />
+              <MiniCard title="Archived Population" value={dashboardData?.archivedPopulation || "0"} />
             </div>
           </div>
 
-          {/* Additional cards... */}
+          <div className="bg-red-50 rounded-xl p-4">
+            <h3 className="text-red-600 font-semibold mb-3">Escalations (Previous 30 Days)</h3>
+            <div className="grid grid-cols-1 gap-3">
+              <MiniCard title="Total" value={dashboardData?.escalationsTotal || "0"} />
+            </div>
+          </div>
+
+          <div className="bg-blue-50 rounded-xl p-4">
+            <h3 className="text-blue-700 font-semibold mb-3">Practice Follow Up</h3>
+            <div className="grid grid-cols-1 gap-3">
+              <MiniCard title="Total (Registered)" value={dashboardData?.practiceFollowUpRegistered || "0"} />
+              <MiniCard title="Total (Registered-EMR)" value={dashboardData?.practiceFollowUpEmr || "0"} />
+              <MiniCard title="Discuss" value={dashboardData?.practiceFollowUpDiscuss || "0"} />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Second API Data */}
+      <div className="rounded-xl shadow-sm p-4 bg-white">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <StatCard title="Population" value={additionalData?.totalPopulation || "0"} color="text-blue-500" />
+          <StatCard title="Escalation" value={additionalData?.escalationsTotal || "0"} color="text-red-500" />
+          <StatCard title="Needs Attention" value={additionalData?.needsAttention || "0"} color="text-yellow-500" />
+          <StatCard title="Patient Engagement" value={additionalData?.patientEngagement || "0"} color="text-green-500" />
+        </div>
+      </div>
+
+      <div className="rounded-xl shadow-sm p-4 bg-white">
+        <h3 className="text-gray-700 font-semibold mb-3">Global Search</h3>
+        <input
+          placeholder="Search By Name"
+          className="w-full p-2 border rounded-lg mb-3 text-sm"
+        />
+        <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto p-1">
+          {[ 
+            "04-01-2025 (rtm-billing)", 
+            "display configuration (device-utilization)", 
+            // ... other tags
+          ].map((tag, idx) => (
+            <span
+              key={idx}
+              className="bg-gray-100 px-3 py-1 text-xs rounded-full border border-gray-200"
+            >
+              {tag}
+            </span>
+          ))}
         </div>
       </div>
     </div>
